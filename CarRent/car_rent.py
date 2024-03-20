@@ -15,10 +15,12 @@ import uuid
 
 class CarRent:
 
+    #Initiates the car rent process
     def rent_car(_self):
             print(s.WELCOME_MESSAGE)
             _self.__ask_login_credentials__()
 
+    #Method that requests the login credentials
     def __ask_login_credentials__(_self):
         customer = []
         while not customer:
@@ -26,7 +28,9 @@ class CarRent:
             e_pwd = input(s.INP_PASSWROD)
             customer = list(filter(lambda x:x.usr_name == e_usr_name and x.pwd == e_pwd, data.customerCredentialList))
         _self.__login__(customer[0].cust_id)
-        
+
+    #Sets the session customer id
+    #Checks if the customer has a car to return, if yes then prompts car return message else continu with car rent process    
     def __login__(self,cust_id):
         sd.logged_in_cust_id = cust_id
         rent_car_data = list(filter(lambda x: x.customer_id == sd.logged_in_cust_id and x. is_returned == False , data.carRentalsData))
@@ -38,6 +42,7 @@ class CarRent:
             self.__get_date_preference__()
             self.__list_all_availabe_cars__()
 
+    #Gets the preferred date of car rent
     def __get_date_preference__(self):
         print(s.RENT_DURATION)
         from_date = input(s.INP_DATE_FROM)
@@ -57,6 +62,7 @@ class CarRent:
         sd.request_from = from_date
         sd.request_to = to_date
 
+    #List all the available cars for the preferred date range. If nothing available then displays message
     def __list_all_availabe_cars__(self):
         if not sd.available_cars:
             unavailable_cars = list(filter(lambda x: (sd.request_from <= utility.convert_to_datetime(x.rent_to,2) 
@@ -73,7 +79,7 @@ class CarRent:
             print(s.NO_CAR_AVAILABLE)
             self.__get_date_preference__()
 
-
+    #Retrieves the car details for the requested car
     def __get_car_details__(self):
         car_id = input(s.INP_CAR_ID)
         car_details = []
@@ -199,6 +205,7 @@ class CarRent:
         sd. request_to =''
         self.__ask_login_credentials__()
 
+    #Get the pricing details
     def __get_pricing__(self,car_id,rent_to = None):    
         price = [p for p in data.carPriceData if p.car_id == car_id][0]
         if rent_to:
@@ -207,9 +214,11 @@ class CarRent:
             day_diff, hour_diff = utility.calculate_date_time_difference(sd.request_from,sd.request_to)
         total_amount = (price.price_per_hour * hour_diff) + (price.price_per_hour * (day_diff*24))
         if day_diff > 1:
-            total_amount = total_amount - (total_amount* 0.25)
+            #If the car is booked for more than a day. Then discount is applied on the total value
+            total_amount = total_amount - (total_amount* (price.discount/100))
         return total_amount
     
+    #Gets the payment information
     def __get_payment_info__(self, amount):
         print(s.PAYMENT_DETAILS)
         print(f'Amount To Be Paid: {amount}')
@@ -226,6 +235,7 @@ class CarRent:
             print(s.INCORRECT_INPUT)
             card_cvv = input(s.INP_CARD_CVV) 
     
+    #Prints the invoice
     def __print_invoice__(self,rent_car_data):
         car_details = list(filter(lambda x: x.id == rent_car_data.car_id, data.carList))[0]
         print(rent_car_data.payment_id)
@@ -240,7 +250,3 @@ class CarRent:
         invoice_data.append(['Rent To',datetime.strftime(utility.convert_to_datetime(rent_car_data.rent_to,2), '%d-%m-%Y %I:%M %p')])
         invoice_data.append(['Total Amount',payment.total_amount])
         print(tabulate(tabular_data= invoice_data,tablefmt="simple"))
-
-    
-    
-   
