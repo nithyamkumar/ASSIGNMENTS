@@ -238,9 +238,6 @@ class CarRent:
     #Prints the invoice
     def __print_invoice__(self,rent_car_data):
         car_details = list(filter(lambda x: x.id == rent_car_data.car_id, data.carList))[0]
-        print(rent_car_data.payment_id)
-        for k in data.paymentData:
-            print(k.payment_id,k.payment_mode,k.total_amount)
         payment = list(filter(lambda x: x.payment_id == rent_car_data.payment_id, data.paymentData))[0]
         print('Return Success!!')
         print('Thank you For Choosing Us\n')
